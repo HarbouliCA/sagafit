@@ -22,6 +22,16 @@ const app = initializeApp(firebaseConfig);
 // Initialize Firebase services
 const firestore = getFirestore(app);
 const storage = getStorage(app);
+
+// Initialize Firebase Auth
+// Note: To properly enable persistence in React Native, you would need to:
+// 1. Install the required package: npm install firebase@^9.19.1
+// 2. Then use:
+//    import { initializeAuth, getReactNativePersistence } from 'firebase/auth';
+//    import { getReactNativePersistence } from 'firebase/auth/react-native';
+//    const auth = initializeAuth(app, {
+//      persistence: getReactNativePersistence(AsyncStorage)
+//    });
 const auth = getAuth(app);
 
 // Set up auth state listener to persist auth state in AsyncStorage

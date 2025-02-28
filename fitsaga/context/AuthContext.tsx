@@ -7,7 +7,8 @@ import {
   getDoc, 
   setDoc, 
   updateDoc, 
-  serverTimestamp 
+  serverTimestamp, 
+  Timestamp 
 } from 'firebase/firestore';
 import { 
   signInWithEmailAndPassword,
@@ -34,6 +35,10 @@ type UserProfile = {
   role: 'user' | 'trainer' | 'admin';
   memberSince: Date;
   lastActive: Date;
+  height?: number; // in cm
+  weight?: number; // in kg
+  birthday?: Date;
+  onboardingCompleted: boolean;
 };
 
 type AuthContextType = {
@@ -44,6 +49,7 @@ type AuthContextType = {
   register: (email: string, password: string, name: string) => Promise<void>;
   logout: () => Promise<void>;
   refreshUserProfile: () => Promise<UserProfile | null>;
+  updateUserProfile: (data: Partial<UserProfile>) => Promise<void>;
 };
 
 // Create context
@@ -80,27 +86,93 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // Fetch user profile from Firestore
   const fetchUserProfile = async (uid: string) => {
+    console.log('Fetching user profile for UID:', uid);
     try {
       const userDoc = await getDoc(doc(firestore, 'users', uid));
       
       if (userDoc.exists()) {
+        console.log('User document found in Firestore');
         const userData = userDoc.data() as UserProfile;
-        await setUserProfile(userData);
-        return userData;
+        
+        // Convert Firestore timestamps to Date objects
+        const profile: UserProfile = {
+          ...userData,
+          memberSince: userData.memberSince instanceof Timestamp 
+            ? userData.memberSince.toDate() 
+            : userData.memberSince,
+          lastActive: userData.lastActive instanceof Timestamp 
+            ? userData.lastActive.toDate() 
+            : userData.lastActive,
+          birthday: userData.birthday instanceof Timestamp 
+            ? userData.birthday.toDate() 
+            : userData.birthday,
+        };
+        
+        console.log('User profile processed successfully');
+        setUserProfile(profile);
+        return profile;
       } else {
-        console.log('User profile not found in Firestore');
+        console.warn('User document not found in Firestore');
+        setUserProfile(null);
         return null;
       }
     } catch (error) {
       console.error('Error fetching user profile:', error);
+      setUserProfile(null);
       return null;
     }
   };
 
   // Refresh user profile
-  const refreshUserProfile = async () => {
-    if (!currentUser) return null;
-    return await fetchUserProfile(currentUser.uid);
+  const refreshUserProfile = async (): Promise<UserProfile | null> => {
+    if (!currentUser) {
+      console.log('No current user, cannot refresh profile');
+      return null;
+    }
+    
+    try {
+      const uid = currentUser.uid;
+      console.log('Fetching user profile from Firestore for UID:', uid);
+      const userDoc = await getDoc(doc(firestore, 'users', uid));
+      
+      if (userDoc.exists()) {
+        console.log('User profile found in Firestore');
+        const userData = userDoc.data() as UserProfile;
+        
+        // Convert Firestore timestamps to Date objects
+        const profile: UserProfile = {
+          ...userData,
+          memberSince: userData.memberSince instanceof Timestamp 
+            ? userData.memberSince.toDate() 
+            : userData.memberSince,
+          lastActive: userData.lastActive instanceof Timestamp 
+            ? userData.lastActive.toDate() 
+            : userData.lastActive,
+          birthday: userData.birthday instanceof Timestamp 
+            ? userData.birthday.toDate() 
+            : userData.birthday,
+          // Ensure onboardingCompleted has a default value if it's undefined
+          onboardingCompleted: userData.onboardingCompleted === true
+        };
+        
+        console.log('User profile processed:', JSON.stringify({
+          uid: profile.uid,
+          email: profile.email,
+          onboardingCompleted: profile.onboardingCompleted
+        }));
+        
+        setUserProfile(profile);
+        return profile;
+      } else {
+        console.warn('User document not found in Firestore for ID:', uid);
+        setUserProfile(null);
+        return null;
+      }
+    } catch (error) {
+      console.error('Error fetching user profile:', error);
+      setUserProfile(null);
+      return null;
+    }
   };
 
   // Handle user authentication state changes
@@ -122,7 +194,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         await AsyncStorage.setItem('user', JSON.stringify(userData));
         
         // Get user profile from Firestore
-        await fetchUserProfile(user.uid);
+        await refreshUserProfile();
         
         // Update last active timestamp
         try {
@@ -147,68 +219,114 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // Login function
   const login = async (email: string, password: string) => {
+    setIsLoading(true);
     try {
+      console.log('Starting login process...');
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      await fetchUserProfile(userCredential.user.uid);
-    } catch (error: any) {
-      console.error('Login error:', error);
+      const user = userCredential.user;
+      console.log('Firebase authentication successful, user ID:', user.uid);
       
-      let errorMessage = 'Failed to login. Please try again.';
-      if (error.code === 'auth/invalid-credential') {
-        errorMessage = 'Invalid email or password.';
-      } else if (error.code === 'auth/user-not-found') {
-        errorMessage = 'User not found.';
-      } else if (error.code === 'auth/wrong-password') {
-        errorMessage = 'Incorrect password.';
+      // Set current user first - use the actual Firebase user object
+      setCurrentUser(user);
+      
+      // Check if user profile exists in Firestore
+      console.log('Checking if user profile exists in Firestore...');
+      const userDocRef = doc(firestore, 'users', user.uid);
+      const userDoc = await getDoc(userDocRef);
+      
+      if (!userDoc.exists()) {
+        // If no profile exists, create a basic one
+        console.log('No profile found in Firestore, creating a basic profile');
+        const now = new Date();
+        const basicProfile: UserProfile = {
+          uid: user.uid,
+          email: email || '',
+          name: user.displayName || email.split('@')[0] || 'User',
+          credits: 0,
+          role: 'user',
+          memberSince: now,
+          lastActive: now,
+          onboardingCompleted: false
+        };
+        
+        await setDoc(userDocRef, basicProfile);
+        // Set the profile in state directly
+        setUserProfile(basicProfile);
+        console.log('Basic profile created and set in state');
+      } else {
+        // Profile exists, load it directly
+        console.log('User profile found in Firestore, loading it directly');
+        const userData = userDoc.data() as UserProfile;
+        
+        // Convert Firestore timestamps to Date objects
+        const profile: UserProfile = {
+          ...userData,
+          memberSince: userData.memberSince instanceof Timestamp 
+            ? userData.memberSince.toDate() 
+            : userData.memberSince,
+          lastActive: userData.lastActive instanceof Timestamp 
+            ? userData.lastActive.toDate() 
+            : userData.lastActive,
+          birthday: userData.birthday instanceof Timestamp 
+            ? userData.birthday.toDate() 
+            : userData.birthday,
+          // Ensure onboardingCompleted has a default value if it's undefined
+          onboardingCompleted: userData.onboardingCompleted === true
+        };
+        
+        // Set the profile in state directly
+        setUserProfile(profile);
+        console.log('Existing profile loaded and set in state');
       }
       
-      Alert.alert('Login Error', errorMessage);
+      console.log('Login successful');
+      
+      // Add a small delay before completing login to prevent UI flicker
+      await new Promise(resolve => setTimeout(resolve, 500));
+    } catch (error: any) {
+      console.error('Login error:', error);
+      setCurrentUser(null);
+      setUserProfile(null);
       throw error;
+    } finally {
+      setIsLoading(false);
     }
   };
 
   // Register function
   const register = async (email: string, password: string, name: string) => {
+    setIsLoading(true);
     try {
+      console.log('Starting registration process...');
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      console.log('User created in Firebase Auth, creating profile in Firestore...');
       
-      // Create user profile in Firestore
-      const newUser: UserProfile = {
+      const now = new Date();
+      const userProfile: UserProfile = {
         uid: userCredential.user.uid,
         email: email,
         name: name,
-        credits: 100, // Starting credits
+        credits: 0,
         role: 'user',
-        memberSince: new Date(),
-        lastActive: new Date(),
+        memberSince: now,
+        lastActive: now,
+        onboardingCompleted: false,
       };
       
-      await setDoc(doc(firestore, 'users', userCredential.user.uid), newUser);
+      console.log('Creating user document in Firestore...');
+      await setDoc(doc(firestore, 'users', userCredential.user.uid), userProfile);
+      console.log('User profile created in Firestore');
       
-      // Update user display name in Firestore instead of auth profile
-      await setUserProfile(newUser);
-      
-      // Set current user
-      setCurrentUser({
-        uid: userCredential.user.uid,
-        email: userCredential.user.email,
-        displayName: name,
-        photoURL: null,
-      });
+      setCurrentUser(userCredential.user);
+      setUserProfile(userProfile);
+      console.log('Registration completed successfully');
     } catch (error: any) {
       console.error('Registration error:', error);
-      
-      let errorMessage = 'Failed to register. Please try again.';
-      if (error.code === 'auth/email-already-in-use') {
-        errorMessage = 'Email is already in use';
-      } else if (error.code === 'auth/invalid-email') {
-        errorMessage = 'Invalid email address';
-      } else if (error.code === 'auth/weak-password') {
-        errorMessage = 'Password is too weak';
-      }
-      
-      Alert.alert('Registration Error', errorMessage);
+      setCurrentUser(null);
+      setUserProfile(null);
       throw error;
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -226,6 +344,39 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  // Update user profile
+  const updateUserProfile = async (data: Partial<UserProfile>) => {
+    try {
+      if (!currentUser) {
+        console.error('Cannot update profile: No user is logged in');
+        return;
+      }
+      
+      console.log('Updating user profile with data:', JSON.stringify(data));
+      await updateDoc(doc(firestore, 'users', currentUser.uid), data);
+      
+      // Update local state immediately for better UX
+      if (userProfile) {
+        const updatedProfile = {
+          ...userProfile,
+          ...data
+        };
+        console.log('Updated profile locally:', JSON.stringify({
+          uid: updatedProfile.uid,
+          onboardingCompleted: updatedProfile.onboardingCompleted
+        }));
+        setUserProfile(updatedProfile);
+      }
+      
+      // Also refresh from server to ensure consistency
+      await refreshUserProfile();
+      console.log('Profile refreshed from server');
+    } catch (error) {
+      console.error('Error updating user profile:', error);
+      throw error;
+    }
+  };
+
   const value = {
     currentUser,
     userProfile,
@@ -234,6 +385,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     register,
     logout,
     refreshUserProfile,
+    updateUserProfile,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

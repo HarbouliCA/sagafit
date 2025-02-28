@@ -35,8 +35,16 @@ export default function LoginScreen() {
   }, []);
 
   const handleAuth = async () => {
-    if (!email || !password) {
-      Alert.alert('Error', 'Please fill in all required fields');
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!email || !emailRegex.test(email)) {
+      Alert.alert('Error', 'Please enter a valid email address');
+      return;
+    }
+
+    // Validate password
+    if (!password || password.length < 6) {
+      Alert.alert('Error', 'Password must be at least 6 characters');
       return;
     }
 
@@ -47,18 +55,25 @@ export default function LoginScreen() {
 
     setLoading(true);
     try {
+      console.log(`Attempting to ${isLogin ? 'login' : 'register'} with email: ${email}`);
+      
       if (isLogin) {
         await login(email, password);
+        console.log('Login successful');
       } else {
         await register(email, password, name);
+        console.log('Registration successful');
       }
 
+      console.log('Authentication successful, checking for pending actions');
+      
       // Handle any pending actions
       if (pendingAction === 'like') {
         const pendingLikePostId = await AsyncStorage.getItem('pendingLikePostId');
         if (pendingLikePostId) {
           // Clear the pending action
           await AsyncStorage.removeItem('pendingLikePostId');
+          console.log(`Redirecting to forum with post ID: ${pendingLikePostId}`);
           // Navigate back to the forum with the post ID
           router.replace({
             pathname: '/(tabs)/forum',
@@ -68,12 +83,45 @@ export default function LoginScreen() {
         }
       }
 
-      // Default navigation if no pending actions
-      router.replace('/(tabs)');
+      console.log('No pending actions, letting layout handle navigation');
+      // Let _layout.tsx handle the navigation based on onboarding status
     } catch (error: any) {
+      console.error('Authentication error:', error);
+      
+      // Show detailed error message
+      let errorMessage = 'Failed to authenticate. Please try again.';
+      
+      if (error.code) {
+        switch (error.code) {
+          case 'auth/invalid-credential':
+          case 'auth/user-not-found':
+          case 'auth/wrong-password':
+            errorMessage = 'Invalid email or password. Please check your credentials and try again.';
+            break;
+          case 'auth/email-already-in-use':
+            errorMessage = 'This email is already registered. Please use a different email or try logging in.';
+            break;
+          case 'auth/weak-password':
+            errorMessage = 'Password is too weak. Please use a stronger password.';
+            break;
+          case 'auth/invalid-email':
+            errorMessage = 'Invalid email format. Please enter a valid email address.';
+            break;
+          case 'auth/network-request-failed':
+            errorMessage = 'Network error. Please check your internet connection and try again.';
+            break;
+          default:
+            errorMessage = `Authentication error (${error.code}). Please try again.`;
+        }
+      }
+      
+      if (error.message) {
+        console.log('Error message:', error.message);
+      }
+      
       Alert.alert(
         'Authentication Error',
-        error.message || 'Failed to authenticate. Please try again.'
+        errorMessage
       );
     } finally {
       setLoading(false);
