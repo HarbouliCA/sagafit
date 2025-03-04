@@ -2,24 +2,13 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/context/AuthContext';
 
-export default function Home() {
+export default function HomePage() {
   const router = useRouter();
-  const { user, isLoading } = useAuth();
 
   useEffect(() => {
-    // Only run this effect on the client side
-    if (typeof window === 'undefined') return;
-    
-    if (!isLoading) {
-      if (user) {
-        router.push('/dashboard');
-      } else {
-        router.push('/login');
-      }
-    }
-  }, [user, isLoading, router]);
+    router.push('/dashboard');
+  }, [router]);
 
   return (
     <div className="flex items-center justify-center min-h-screen">

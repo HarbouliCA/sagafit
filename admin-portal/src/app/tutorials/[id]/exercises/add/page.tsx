@@ -9,6 +9,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeftIcon } from '@heroicons/react/24/outline';
 import ImageUploader from '@/components/ui/ImageUploader';
+import VideoUploader from '@/components/ui/VideoUploader';
 
 type FormValues = {
   name: string;
@@ -19,12 +20,18 @@ type FormValues = {
   videoUrl?: string;
 };
 
+// Function to generate a unique ID
+const generateId = () => {
+  return Date.now().toString(36) + Math.random().toString(36).substring(2);
+};
+
 export default function AddExercisePage({ params }: { params: { id: string } }) {
   const { register, handleSubmit, formState: { errors } } = useForm<FormValues>();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [tutorial, setTutorial] = useState<Tutorial | null>(null);
   const [imageUrl, setImageUrl] = useState('');
+  const [videoUrl, setVideoUrl] = useState('');
   const router = useRouter();
 
   useEffect(() => {
@@ -74,15 +81,16 @@ export default function AddExercisePage({ params }: { params: { id: string } }) 
         throw new Error('Firebase services not initialized');
       }
       
-      // Create exercise object
+      // Create exercise object with a unique ID
       const exercise = {
+        id: generateId(), // Add unique ID
         name: data.name,
         description: data.description,
         sets: Number(data.sets),
         reps: Number(data.reps),
         restTime: Number(data.restTime),
         imageUrl: imageUrl || null,
-        videoUrl: data.videoUrl || null
+        videoUrl: videoUrl || null
       };
       
       // Add exercise to tutorial
@@ -98,14 +106,6 @@ export default function AddExercisePage({ params }: { params: { id: string } }) 
     } finally {
       setIsSubmitting(false);
     }
-  };
-
-  const handleImageUploaded = (url: string) => {
-    setImageUrl(url);
-  };
-
-  const handleImageError = (errorMessage: string) => {
-    setError(`Image upload error: ${errorMessage}`);
   };
 
   if (error) {
@@ -242,44 +242,28 @@ export default function AddExercisePage({ params }: { params: { id: string } }) 
             </div>
           </div>
           
-          <div className="mb-6">
-            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="image">
+          <div>
+            <label htmlFor="image" className="form-label">
               Exercise Image
             </label>
-            <ImageUploader 
-              folder="tutorials/exercises"
-              onImageUploaded={handleImageUploaded}
-              onError={handleImageError}
+            <ImageUploader
+              folder={`tutorials/${params.id}/exercises`}
+              onImageUploaded={setImageUrl}
+              onError={(error) => setError(error)}
+              currentImageUrl={imageUrl}
             />
-            <p className="text-gray-500 text-xs mt-1">
-              Upload an image for the exercise (optional).
-            </p>
-            {imageUrl && (
-              <div className="mt-2">
-                <p className="text-green-500 text-xs">Image uploaded successfully!</p>
-                <img 
-                  src={imageUrl} 
-                  alt="Exercise preview" 
-                  className="mt-2 h-40 w-auto object-cover rounded"
-                />
-              </div>
-            )}
           </div>
-          
-          <div className="mb-6">
-            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="videoUrl">
-              Video URL (optional)
+
+          <div>
+            <label htmlFor="video" className="form-label">
+              Exercise Video
             </label>
-            <input
-              id="videoUrl"
-              type="url"
-              {...register('videoUrl')}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
-              placeholder="https://example.com/video"
+            <VideoUploader
+              folder={`tutorials/${params.id}/exercises`}
+              onVideoUploaded={setVideoUrl}
+              onError={(error) => setError(error)}
+              currentVideoUrl={videoUrl}
             />
-            <p className="text-gray-500 text-xs mt-1">
-              Enter a URL to a video demonstrating the exercise (YouTube, Vimeo, etc.).
-            </p>
           </div>
           
           <div className="flex items-center justify-between">

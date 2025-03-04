@@ -1,9 +1,14 @@
 {
   "pages": {
-    "/login/page": [
+    "/dashboard/forum/create/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/login/page.js"
+      "static/chunks/app/dashboard/forum/create/page.js"
+    ],
+    "/dashboard/layout": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/dashboard/layout.js"
     ],
     "/layout": [
       "static/chunks/webpack.js",
@@ -11,75 +16,80 @@
       "static/css/app/layout.css",
       "static/chunks/app/layout.js"
     ],
+    "/dashboard/forum/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/dashboard/forum/page.js"
+    ],
+    "/dashboard/forum/[id]/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/dashboard/forum/[id]/page.js"
+    ],
+    "/dashboard/tutorials/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/dashboard/tutorials/page.js"
+    ],
+    "/dashboard/tutorials/create/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/dashboard/tutorials/create/page.js"
+    ],
+    "/dashboard/tutorials/[id]/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/dashboard/tutorials/[id]/page.js"
+    ],
+    "/dashboard/sessions/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/dashboard/sessions/page.js"
+    ],
+    "/dashboard/sessions/[id]/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/dashboard/sessions/[id]/page.js"
+    ],
+    "/dashboard/sessions/create/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/dashboard/sessions/create/page.js"
+    ],
     "/dashboard/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/dashboard/page.js"
     ],
-    "/dashboard/layout": [
+    "/dashboard/users/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/dashboard/layout.js"
+      "static/chunks/app/dashboard/users/page.js"
     ],
-    "/tutorials/page": [
+    "/dashboard/users/[id]/edit/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/tutorials/page.js"
+      "static/chunks/app/dashboard/users/[id]/edit/page.js"
     ],
-    "/tutorials/create/page": [
+    "/dashboard/activities/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/tutorials/create/page.js"
+      "static/chunks/app/dashboard/activities/page.js"
     ],
-    "/tutorials/[id]/page": [
+    "/dashboard/activities/[id]/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/tutorials/[id]/page.js"
+      "static/chunks/app/dashboard/activities/[id]/page.js"
     ],
-    "/tutorials/[id]/exercises/add/page": [
+    "/dashboard/activities/create/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/tutorials/[id]/exercises/add/page.js"
+      "static/chunks/app/dashboard/activities/create/page.js"
     ],
-    "/activities/page": [
+    "/dashboard/settings/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/activities/page.js"
-    ],
-    "/activities/create/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/activities/create/page.js"
-    ],
-    "/activities/[id]/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/activities/[id]/page.js"
-    ],
-    "/activities/[id]/edit/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/activities/[id]/edit/page.js"
-    ],
-    "/sessions/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/sessions/page.js"
-    ],
-    "/sessions/create/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/sessions/create/page.js"
-    ],
-    "/sessions/[id]/edit/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/sessions/[id]/edit/page.js"
-    ],
-    "/sessions/[id]/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/sessions/[id]/page.js"
+      "static/chunks/app/dashboard/settings/page.js"
     ]
   }
 }

@@ -16,12 +16,12 @@ import {
 
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: HomeIcon },
-  { name: 'Users', href: '/users', icon: UsersIcon },
-  { name: 'Activities', href: '/activities', icon: ClipboardDocumentListIcon },
-  { name: 'Sessions', href: '/sessions', icon: CalendarIcon },
-  { name: 'Tutorials', href: '/tutorials', icon: BookOpenIcon },
-  { name: 'Forum', href: '/forum', icon: ChatBubbleLeftRightIcon },
-  { name: 'Settings', href: '/settings', icon: Cog6ToothIcon },
+  { name: 'Users', href: '/dashboard/users', icon: UsersIcon },
+  { name: 'Activities', href: '/dashboard/activities', icon: ClipboardDocumentListIcon },
+  { name: 'Sessions', href: '/dashboard/sessions', icon: CalendarIcon },
+  { name: 'Tutorials', href: '/dashboard/tutorials', icon: BookOpenIcon },
+  { name: 'Forum', href: '/dashboard/forum', icon: ChatBubbleLeftRightIcon },
+  { name: 'Settings', href: '/dashboard/settings', icon: Cog6ToothIcon },
 ];
 
 export default function Sidebar() {
@@ -31,7 +31,10 @@ export default function Sidebar() {
   return (
     <div className="flex flex-col h-full bg-gray-800 text-white w-64">
       <div className="flex items-center justify-center h-16 px-4 border-b border-gray-700">
-        <h1 className="text-xl font-bold">FitSaga Admin</h1>
+        <Link href="/dashboard" className="text-xl font-bold hover:opacity-90 tracking-wider">
+          <span className="text-white font-extrabold">SAGA</span>
+          <span className="text-turquoise-400 font-medium">fit</span>
+        </Link>
       </div>
       
       <div className="flex flex-col justify-between flex-1 overflow-y-auto">

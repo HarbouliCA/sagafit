@@ -57,39 +57,40 @@ export type Booking = {
   bookedAt: Date;
 };
 
-export type Tutorial = {
+export type Exercise = {
   id: string;
   name: string;
-  section: 'musculation' | 'diete';
   description: string;
-  imageUrl: string;
+  videoUrl?: string;
+  thumbnailUrl?: string;
+  duration: number; // in minutes
+  difficulty: 'beginner' | 'intermediate' | 'advanced';
+  equipment?: string[];
+  muscleGroups?: string[];
+  instructions: string[];
+};
+
+export type TutorialDay = {
+  id: string;
+  dayNumber: number;
+  title: string;
+  description: string;
+  exercises: Exercise[];
+};
+
+export type Tutorial = {
+  id: string;
+  title: string;
+  category: 'exercise' | 'nutrition';
+  description: string;
+  thumbnailUrl?: string;
+  author: string;
+  duration: number; // Total duration in minutes
+  difficulty: 'beginner' | 'intermediate' | 'advanced';
   createdAt: Date;
-  updatedAt: Date;
-  // For musculation tutorials
-  exercises?: {
-    name: string;
-    description: string;
-    sets: number;
-    reps: number;
-    restTime: number; // in seconds
-    imageUrl?: string;
-    videoUrl?: string;
-  }[];
-  // For diete tutorials
-  dietPlans?: {
-    name: string;
-    description: string;
-    mealPlan: {
-      mealName: string;
-      foods: {
-        name: string;
-        quantity: string;
-        calories: number;
-      }[];
-    }[];
-    duration: number; // in days
-    imageUrl?: string;
-  }[];
+  days: TutorialDay[];
+  goals?: string[];
+  requirements?: string[];
 };
 
 export type ForumPost = {
@@ -102,4 +103,31 @@ export type ForumPost = {
   comments: number;
   createdAt: Date;
   updatedAt: Date;
+};
+
+export type ForumReply = {
+  id: string;
+  content: string;
+  authorId: string;
+  authorName?: string;
+  likes?: number;
+  createdAt: { seconds: number; nanoseconds: number };
+  updatedAt: { seconds: number; nanoseconds: number };
+};
+
+export type ForumThread = {
+  id: string;
+  title: string;
+  content: string;
+  authorId: string;
+  authorName?: string;
+  imageUrl?: string;
+  category: 'question' | 'discussion' | 'general';
+  status: 'open' | 'closed' | 'resolved';
+  likes?: number;
+  replies: ForumReply[];
+  replyCount: number;
+  createdAt: { seconds: number; nanoseconds: number };
+  updatedAt: { seconds: number; nanoseconds: number };
+  lastActivity: { seconds: number; nanoseconds: number };
 };

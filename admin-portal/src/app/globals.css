@@ -54,4 +54,118 @@
   .loading-spinner {
     @apply animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-600;
   }
+
+  /* Rich Text Editor Styles */
+  .editor-btn {
+    @apply p-2 rounded hover:bg-gray-200 transition-colors;
+  }
+
+  .editor-btn.is-active {
+    @apply bg-gray-200 text-primary-600;
+  }
+
+  .ProseMirror {
+    @apply outline-none;
+  }
+
+  .ProseMirror p {
+    @apply mb-4;
+  }
+
+  .ProseMirror h1 {
+    @apply text-3xl font-bold mb-4;
+  }
+
+  .ProseMirror h2 {
+    @apply text-2xl font-bold mb-3;
+  }
+
+  .ProseMirror h3 {
+    @apply text-xl font-bold mb-2;
+  }
+
+  .ProseMirror ul {
+    @apply list-disc pl-5 mb-4;
+  }
+
+  .ProseMirror ol {
+    @apply list-decimal pl-5 mb-4;
+  }
+
+  .ProseMirror a {
+    @apply text-primary-600 underline;
+  }
+
+  .ProseMirror img {
+    @apply max-w-full h-auto my-4 rounded-md;
+  }
+
+  .ProseMirror blockquote {
+    @apply border-l-4 border-gray-300 pl-4 italic my-4;
+  }
+
+  .ProseMirror table {
+    @apply border-collapse w-full my-4;
+  }
+
+  .ProseMirror th {
+    @apply bg-gray-100 font-semibold p-2 border border-gray-300;
+  }
+
+  .ProseMirror td {
+    @apply p-2 border border-gray-300;
+  }
+
+  .ProseMirror tr {
+    @apply border-b border-gray-300;
+  }
+
+  .ProseMirror .tableWrapper {
+    @apply overflow-x-auto;
+  }
+
+  .ProseMirror p.is-editor-empty:first-child::before {
+    color: #adb5bd;
+    content: attr(data-placeholder);
+    float: left;
+    height: 0;
+    pointer-events: none;
+  }
+
+  .ProseMirror {
+    > * + * {
+      margin-top: 0.75em;
+    }
+
+    ul,
+    ol {
+      padding: 0 1rem;
+    }
+
+    h1 {
+      font-size: 2em;
+      font-weight: bold;
+    }
+
+    h2 {
+      font-size: 1.5em;
+      font-weight: bold;
+    }
+
+    h3 {
+      font-size: 1.17em;
+      font-weight: bold;
+    }
+
+    blockquote {
+      padding-left: 1rem;
+      border-left: 2px solid #ddd;
+    }
+
+    code {
+      background-color: #f8f9fa;
+      padding: 0.2em 0.4em;
+      border-radius: 3px;
+    }
+  }
 }

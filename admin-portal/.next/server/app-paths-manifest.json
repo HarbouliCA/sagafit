@@ -1,7 +1,7 @@
 {
-  "/sessions/page": "app/sessions/page.js",
-  "/sessions/create/page": "app/sessions/create/page.js",
-  "/sessions/[id]/edit/page": "app/sessions/[id]/edit/page.js",
-  "/sessions/[id]/page": "app/sessions/[id]/page.js",
+  "/dashboard/sessions/page": "app/dashboard/sessions/page.js",
+  "/dashboard/forum/[id]/page": "app/dashboard/forum/[id]/page.js",
+  "/dashboard/settings/page": "app/dashboard/settings/page.js",
+  "/dashboard/forum/create/page": "app/dashboard/forum/create/page.js",
   "/dashboard/page": "app/dashboard/page.js"
 }

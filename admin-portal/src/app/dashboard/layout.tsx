@@ -2,6 +2,7 @@
 
 import { useAuth } from '@/context/AuthContext';
 import Sidebar from '@/components/layout/Sidebar';
+import AuthCheck from '@/components/auth/AuthCheck';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 
@@ -32,13 +33,15 @@ export default function DashboardLayout({
   }
 
   return (
-    <div className="flex h-screen bg-gray-100">
-      <Sidebar />
-      <div className="flex-1 overflow-auto">
-        <main className="p-6">
-          {children}
-        </main>
+    <AuthCheck>
+      <div className="flex h-screen bg-gray-100">
+        <Sidebar />
+        <div className="flex-1 overflow-auto">
+          <main className="p-6">
+            {children}
+          </main>
+        </div>
       </div>
-    </div>
+    </AuthCheck>
   );
 }
